@@ -22,7 +22,7 @@ jobs:
         shell: bash
         run: |
           echo "ghcr=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
-          echo "dockerhub=${{ vars.DOCKERHUB_USERNAME }}/repo-dockerhub-devops" >> "$GITHUB_OUTPUT"
+          echo "dockerhub=${{ vars.JBALLINI }}/repo-dockerhub-devops" >> "$GITHUB_OUTPUT"
           echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       - name: Construir imagen Docker
