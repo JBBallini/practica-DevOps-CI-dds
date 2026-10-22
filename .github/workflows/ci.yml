@@ -1,4 +1,4 @@
-name: CI - Docker y GHCR
+name: CI - Docker, GHCR y Docker Hub
 
 on:
   push:
@@ -17,11 +17,13 @@ jobs:
       - name: Obtener codigo
         uses: actions/checkout@v4
 
-      - name: Definir nombre de imagen
+      - name: Definir nombres de imagen
         id: image
         shell: bash
         run: |
-          echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          echo "ghcr=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          echo "dockerhub=${{ vars.DOCKERHUB_USERNAME }}/repo-dockerhub-devops" >> "$GITHUB_OUTPUT"
+          echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       - name: Construir imagen Docker
         run: docker build -t dds-devops-demo:test .
@@ -47,24 +49,26 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Autenticarse en Docker Hub
         uses: docker/login-action@v3
         with:
           registry: docker.io
-          username: ${{ JBALLINI }}
-          password: ${{ SECRETBALLINI }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Etiquetar imagen
         run: |
-          docker tag dds-devops-demo:test \
-            ${{ steps.image.outputs.name }}:${GITHUB_SHA::7}
+          docker tag dds-devops-demo:test ${{ steps.image.outputs.ghcr }}:${{ steps.image.outputs.sha }}
+          docker tag dds-devops-demo:test ${{ steps.image.outputs.ghcr }}:latest
+          docker tag dds-devops-demo:test ${{ steps.image.outputs.dockerhub }}:${{ steps.image.outputs.sha }}
+          docker tag dds-devops-demo:test ${{ steps.image.outputs.dockerhub }}:latest
 
       - name: Publicar imagen en GHCR
         run: |
-          docker push \
-            ${{ steps.image.outputs.name }}:${GITHUB_SHA::7}
-      
+          docker push ${{ steps.image.outputs.ghcr }}:${{ steps.image.outputs.sha }}
+          docker push ${{ steps.image.outputs.ghcr }}:latest
+
       - name: Publicar imagen en Docker Hub
         run: |
           docker push ${{ steps.image.outputs.dockerhub }}:${{ steps.image.outputs.sha }}
