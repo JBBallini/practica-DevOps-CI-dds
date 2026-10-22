@@ -52,8 +52,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: docker.io
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ JBALLINI }}
+          password: ${{ SECRETBALLINI }}
 
       - name: Etiquetar imagen
         run: |
