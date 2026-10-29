@@ -73,3 +73,7 @@ jobs:
         run: |
           docker push ${{ steps.image.outputs.dockerhub }}:${{ steps.image.outputs.sha }}
           docker push ${{ steps.image.outputs.dockerhub }}:latest
+
+      - name: Despliegue en Render
+        if: github.ref == 'refs/heads/main'
+        run: curl -fsS -X POST "${{ secrets.URL_HOOK }}"
